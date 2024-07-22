@@ -39,9 +39,6 @@ public class BankSearcherPanel extends PluginPanel {
 
     void init()
 	{
-        setLayout(new BorderLayout());
-		setBackground(ColorScheme.DARK_GRAY_COLOR);
-
 		setLayout(new BorderLayout());
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
 

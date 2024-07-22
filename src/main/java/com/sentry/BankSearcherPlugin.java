@@ -47,7 +47,7 @@ public class BankSearcherPlugin extends Plugin {
 	protected void startUp() throws Exception {
 		bankSearcherPanel = injector.getInstance(BankSearcherPanel.class);
 		bankSearcherPanel.init();
-		log.info(getClass().toString());
+		
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "BankSearcher.png");
 
 		navButton = NavigationButton.builder()
