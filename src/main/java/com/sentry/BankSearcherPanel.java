@@ -8,17 +8,25 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Item;
+import net.runelite.api.ItemComposition;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.ui.components.PluginErrorPanel;
+import net.runelite.client.util.AsyncBufferedImage;
 
+@Slf4j
 public class BankSearcherPanel extends PluginPanel {
 
     private static final String ERROR_PANEL = "ERROR_PANEL";
 	private static final String RESULTS_PANEL = "RESULTS_PANEL";
+
+	private Item[] bankItems;
 
     private final GridBagConstraints constraints = new GridBagConstraints();
     private final CardLayout cardLayout = new CardLayout();
@@ -36,6 +44,9 @@ public class BankSearcherPanel extends PluginPanel {
 
     @Inject
 	private EventBus eventBus;
+
+	@Inject
+	private ItemManager itemManager;
 
     void init()
 	{
@@ -99,6 +110,29 @@ public class BankSearcherPanel extends PluginPanel {
     void deinit()
 	{
 		eventBus.unregister(this);
+	}
+
+	public void updateItems(Item[] bankItems) {
+		log.info("UPDATING ITEMS");
+		log.info("BANK IS OPEN");
+		searchItemsPanel.removeAll();
+		searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		searchBar.setEditable(false);
+		searchBar.setIcon(IconTextField.Icon.LOADING);
+
+		for(Item bankItem : bankItems) {
+			int itemId = bankItem.getId();
+			AsyncBufferedImage itemImage = itemManager.getImage(itemId);
+			ItemComposition itemComp = itemManager.getItemComposition(itemId);
+			JPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), bankItem.getId(), bankItem.getQuantity());
+
+			searchItemsPanel.add(bankItemPanel);
+		}
+
+		searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		searchBar.setEditable(true);
+		searchBar.setIcon(IconTextField.Icon.SEARCH);
+		cardLayout.show(centerPanel, RESULTS_PANEL);
 	}
 
     private boolean updateSearch() {

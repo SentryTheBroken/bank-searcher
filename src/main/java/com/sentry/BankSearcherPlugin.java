@@ -88,6 +88,7 @@ public class BankSearcherPlugin extends Plugin {
 				for (Item bankItem : this.bankItems) {
 					log.info(bankItem.toString());
 				}
+				bankSearcherPanel.updateItems(this.bankItems);
 			}
 		}
 	}
