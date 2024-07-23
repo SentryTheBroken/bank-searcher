@@ -126,10 +126,17 @@ public class BankSearcherPanel extends PluginPanel {
 			int index = 0;
 			for(Item bankItem : bankItems) {
 				int itemId = bankItem.getId();
-				AsyncBufferedImage itemImage = itemManager.getImage(itemId);
+				int quantity = bankItem.getQuantity();
 				ItemComposition itemComp = itemManager.getItemComposition(itemId);
+				AsyncBufferedImage itemImage;
+				if(quantity > 1 || itemComp.isStackable()) {
+					itemImage = itemManager.getImage(itemId, quantity, true);
+				}
+				else {
+					itemImage = itemManager.getImage(itemId);
+				}
 
-				BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), bankItem.getId(), bankItem.getQuantity());
+				BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), itemId, quantity);
 
 				/*
 				Add the first item directly, wrap the rest with margin. This margin hack is because
