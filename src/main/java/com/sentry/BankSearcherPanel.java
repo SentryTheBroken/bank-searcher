@@ -138,10 +138,10 @@ public class BankSearcherPanel extends PluginPanel {
 
             BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), itemId, quantity);
 
-				/*
-				Add the first item directly, wrap the rest with margin. This margin hack is because
-				gridbaglayout does not support inter-element margins.
-				 */
+            /*
+            Add the first item directly, wrap the rest with margin. This margin hack is because
+            gridbaglayout does not support inter-element margins.
+             */
             if (index++ > 0)
             {
                 JPanel marginWrapper = new JPanel(new BorderLayout());
