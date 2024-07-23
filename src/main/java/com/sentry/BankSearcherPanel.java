@@ -1,16 +1,17 @@
 package com.sentry;
 
 import java.awt.*;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
+import net.runelite.client.callback.ClientThread;
+import net.runelite.client.config.RuneLiteConfig;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
@@ -23,17 +24,22 @@ import net.runelite.client.util.AsyncBufferedImage;
 @Slf4j
 public class BankSearcherPanel extends PluginPanel {
 
-    private static final String ERROR_PANEL = "ERROR_PANEL";
+	private static final String ERROR_PANEL = "ERROR_PANEL";
 	private static final String RESULTS_PANEL = "RESULTS_PANEL";
+	private static final int MAX_SEARCH_ITEMS = 100;
 
-	private Item[] bankItems;
+	private final GridBagConstraints constraints = new GridBagConstraints();
+	private final CardLayout cardLayout = new CardLayout();
 
-    private final GridBagConstraints constraints = new GridBagConstraints();
-    private final CardLayout cardLayout = new CardLayout();
+	private final ClientThread clientThread;
+	private final ItemManager itemManager;
+	private final ScheduledExecutorService executor;
+	private final RuneLiteConfig runeLiteConfig;
+	private final BankSearcherPlugin bankSearcherPlugin;
 
-    private final IconTextField searchBar = new IconTextField();
+	private final IconTextField searchBar = new IconTextField();
 
-    /*  The results container, this will hold all the individual ge item panels */
+	/*  The results container, this will hold all the individual ge item panels */
 	private final JPanel searchItemsPanel = new JPanel();
 
 	/*  The center panel, this holds either the error panel or the results container */
@@ -42,14 +48,16 @@ public class BankSearcherPanel extends PluginPanel {
 	/*  The error panel, this displays an error message */
 	private final PluginErrorPanel errorPanel = new PluginErrorPanel();
 
-    @Inject
-	private EventBus eventBus;
-
 	@Inject
-	private ItemManager itemManager;
-
-    void init()
+	private BankSearcherPanel(ClientThread clientThread, ItemManager itemManager,
+									 ScheduledExecutorService executor, RuneLiteConfig runeLiteConfig, BankSearcherPlugin bankSearcherPlugin)
 	{
+		this.clientThread = clientThread;
+		this.itemManager = itemManager;
+		this.executor = executor;
+		this.runeLiteConfig = runeLiteConfig;
+		this.bankSearcherPlugin = bankSearcherPlugin;
+
 		setLayout(new BorderLayout());
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
 
@@ -92,7 +100,7 @@ public class BankSearcherPanel extends PluginPanel {
 		errorWrapper.add(errorPanel, BorderLayout.NORTH);
 
 		errorPanel.setContent("Bank Searcher",
-			"Here you can search for an item in your bank by its name.");
+				"Here you can search for an item in your bank by its name.");
 
 		centerPanel.add(resultsWrapper, RESULTS_PANEL);
 		centerPanel.add(errorWrapper, ERROR_PANEL);
@@ -103,13 +111,6 @@ public class BankSearcherPanel extends PluginPanel {
 		container.add(centerPanel, BorderLayout.CENTER);
 
 		add(container, BorderLayout.CENTER);
-
-        eventBus.register(this);
-    }
-
-    void deinit()
-	{
-		eventBus.unregister(this);
 	}
 
 	public void updateItems(Item[] bankItems) {
@@ -120,14 +121,36 @@ public class BankSearcherPanel extends PluginPanel {
 		searchBar.setEditable(false);
 		searchBar.setIcon(IconTextField.Icon.LOADING);
 
-		for(Item bankItem : bankItems) {
-			int itemId = bankItem.getId();
-			AsyncBufferedImage itemImage = itemManager.getImage(itemId);
-			ItemComposition itemComp = itemManager.getItemComposition(itemId);
-			JPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), bankItem.getId(), bankItem.getQuantity());
+		//SwingUtilities.invokeLater(() ->
+		//{
+			int index = 0;
+			for(Item bankItem : bankItems) {
+				int itemId = bankItem.getId();
+				AsyncBufferedImage itemImage = itemManager.getImage(itemId);
+				ItemComposition itemComp = itemManager.getItemComposition(itemId);
 
-			searchItemsPanel.add(bankItemPanel);
-		}
+				BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), bankItem.getId(), bankItem.getQuantity());
+
+				/*
+				Add the first item directly, wrap the rest with margin. This margin hack is because
+				gridbaglayout does not support inter-element margins.
+				 */
+				if (index++ > 0)
+				{
+					JPanel marginWrapper = new JPanel(new BorderLayout());
+					marginWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
+					marginWrapper.setBorder(new EmptyBorder(5, 0, 0, 0));
+					marginWrapper.add(bankItemPanel, BorderLayout.NORTH);
+					searchItemsPanel.add(marginWrapper, constraints);
+				}
+				else
+				{
+					searchItemsPanel.add(bankItemPanel, constraints);
+				}
+
+				constraints.gridy++;
+			}
+		//});
 
 		searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		searchBar.setEditable(true);

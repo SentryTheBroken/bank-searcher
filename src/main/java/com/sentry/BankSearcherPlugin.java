@@ -46,7 +46,6 @@ public class BankSearcherPlugin extends Plugin {
 	@Override
 	protected void startUp() throws Exception {
 		bankSearcherPanel = injector.getInstance(BankSearcherPanel.class);
-		bankSearcherPanel.init();
 		
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "BankSearcher.png");
 
@@ -63,7 +62,6 @@ public class BankSearcherPlugin extends Plugin {
 
 	@Override
 	protected void shutDown() throws Exception {
-		bankSearcherPanel.deinit();
 		clientToolbar.removeNavigation(navButton);
 		bankSearcherPanel = null;
 		log.info("BankSearcher stopped!");
