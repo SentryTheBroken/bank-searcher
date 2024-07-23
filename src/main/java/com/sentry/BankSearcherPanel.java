@@ -121,8 +121,21 @@ public class BankSearcherPanel extends PluginPanel {
         searchBar.setEditable(false);
         searchBar.setIcon(IconTextField.Icon.LOADING);
 
-        //SwingUtilities.invokeLater(() ->
-        //{
+        this.createDetailItemLayout(bankItems);
+
+        searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        searchBar.setEditable(true);
+        searchBar.setIcon(IconTextField.Icon.SEARCH);
+        cardLayout.show(centerPanel, RESULTS_PANEL);
+    }
+
+    private boolean updateSearch() {
+        return true;
+    }
+
+    private void createDetailItemLayout(Item[] bankItems) {
+        searchItemsPanel.setLayout(new GridBagLayout());
+
         int index = 0;
         for(Item bankItem : bankItems) {
             int itemId = bankItem.getId();
@@ -157,15 +170,43 @@ public class BankSearcherPanel extends PluginPanel {
 
             constraints.gridy++;
         }
-        //});
-
-        searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        searchBar.setEditable(true);
-        searchBar.setIcon(IconTextField.Icon.SEARCH);
-        cardLayout.show(centerPanel, RESULTS_PANEL);
     }
 
-    private boolean updateSearch() {
-        return true;
+    private void createCompactItemLayout(Item[] bankItems) {
+        searchItemsPanel.setLayout(new GridLayout(0, 5, 1, 1));
+
+        int index = 0;
+        for(Item bankItem : bankItems) {
+            int itemId = bankItem.getId();
+            int quantity = bankItem.getQuantity();
+            ItemComposition itemComp = itemManager.getItemComposition(itemId);
+            AsyncBufferedImage itemImage;
+            if(quantity > 1 || itemComp.isStackable()) {
+                itemImage = itemManager.getImage(itemId, quantity, true);
+            }
+            else {
+                itemImage = itemManager.getImage(itemId);
+            }
+
+            BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(itemImage, itemComp.getName(), itemId, quantity);
+
+            /*
+            Add the first item directly, wrap the rest with margin. This margin hack is because
+            gridbaglayout does not support inter-element margins.
+             */
+            if (index++ > 4) {
+                JPanel marginWrapper = new JPanel(new BorderLayout());
+                marginWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
+                marginWrapper.setBorder(new EmptyBorder(0, 0, 0, 0));
+                marginWrapper.add(bankItemPanel, BorderLayout.NORTH);
+                searchItemsPanel.add(marginWrapper, constraints);
+            }
+            else
+            {
+                searchItemsPanel.add(bankItemPanel, constraints);
+            }
+
+            constraints.gridy++;
+        }
     }
 }
