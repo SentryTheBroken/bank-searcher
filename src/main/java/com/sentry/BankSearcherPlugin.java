@@ -69,8 +69,8 @@ public class BankSearcherPlugin extends Plugin {
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged) {
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN) {
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
+		if(gameStateChanged.getGameState() == GameState.LOGGED_IN) {
+			// TO DO: Get List of items cached for currently logged in character
 		}
 	}
 

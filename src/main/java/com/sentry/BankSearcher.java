@@ -5,6 +5,8 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 
+import javax.inject.Inject;
+
 public class BankSearcher {
 
     public static Item[] getBankItems(Client client) {
