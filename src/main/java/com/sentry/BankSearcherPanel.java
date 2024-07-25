@@ -24,7 +24,8 @@ import net.runelite.client.util.AsyncBufferedImage;
 @Slf4j
 public class BankSearcherPanel extends PluginPanel {
     // Injections
-    private final ItemManager itemManager;
+    private BankSearcherPlugin bankSearcherPlugin;
+    private ItemManager itemManager;
 
     // Constants
     private static final String ERROR_PANEL = "ERROR_PANEL";
@@ -37,24 +38,22 @@ public class BankSearcherPanel extends PluginPanel {
     private final JPanel actionsAndSearchPanel = new JPanel();
     private final IconTextField searchBar = new IconTextField();
 
-    /*  The results container, this will hold all the individual ge item panels */
+    // The results container, this will hold all the individual ge item panels
     private final JPanel searchItemsPanel = new JPanel();
 
-    /*  The center panel, this holds either the error panel or the results container */
+    // The center panel, this holds either the error panel or the results container
     private final JPanel centerPanel = new JPanel(cardLayout);
 
-    /*  The error panel, this displays an error message */
+    // The error panel, this displays an error message
     private final PluginErrorPanel errorPanel = new PluginErrorPanel();
 
-    private Item[] allBankItems = {};
-    private Item[] filteredBankItems = {};
-
     @Inject
-    private BankSearcherPanel(ItemManager itemManager) {
+    private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager) {
+        this.bankSearcherPlugin = bankSearcherPlugin;
         this.itemManager = itemManager;
 
-        setLayout(new BorderLayout());
-        setBackground(ColorScheme.DARK_GRAY_COLOR);
+        this.setLayout(new BorderLayout());
+        this.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
@@ -74,31 +73,31 @@ public class BankSearcherPanel extends PluginPanel {
         container.add(this.actionsAndSearchPanel, BorderLayout.NORTH);
         container.add(this.centerPanel, BorderLayout.CENTER);
 
-        add(container, BorderLayout.CENTER);
+        this.add(container, BorderLayout.CENTER);
     }
 
     private void buildActionsAndSearchPanel() {
-        actionsAndSearchPanel.setLayout(new BorderLayout());
-        actionsAndSearchPanel.setBackground(ColorScheme.PROGRESS_ERROR_COLOR);
+        this.actionsAndSearchPanel.setLayout(new BorderLayout());
+        this.actionsAndSearchPanel.setBackground(ColorScheme.PROGRESS_ERROR_COLOR);
 
-        searchBar.setIcon(IconTextField.Icon.SEARCH);
-        searchBar.setPreferredSize(new Dimension(100, 30));
-        searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        searchBar.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
-        //searchBar.addActionListener(e -> executor.execute(() -> priceLookup(false)));
-        searchBar.addClearListener(this::updateSearch);
+        this.searchBar.setIcon(IconTextField.Icon.SEARCH);
+        this.searchBar.setPreferredSize(new Dimension(100, 30));
+        this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        this.searchBar.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
+        //this.searchBar.addActionListener(e -> executor.execute(() -> priceLookup(false)));
+        this.searchBar.addClearListener(this::updateSearch);
 
-        actionsAndSearchPanel.add(searchBar);
+        this.actionsAndSearchPanel.add(searchBar);
     }
 
     private void buildCenterPanel() {
-        searchItemsPanel.setLayout(new GridBagLayout());
-        searchItemsPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+        this.searchItemsPanel.setLayout(new GridBagLayout());
+        this.searchItemsPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
         /* This panel wraps the results panel and guarantees the scrolling behaviour */
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        wrapper.add(searchItemsPanel, BorderLayout.NORTH);
+        wrapper.add(this.searchItemsPanel, BorderLayout.NORTH);
 
         /*  The results wrapper, this scrolling panel wraps the results container */
         JScrollPane resultsWrapper = new JScrollPane(wrapper);
@@ -110,50 +109,49 @@ public class BankSearcherPanel extends PluginPanel {
         /* This panel wraps the error panel and limits its height */
         JPanel errorWrapper = new JPanel(new BorderLayout());
         errorWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        errorWrapper.add(errorPanel, BorderLayout.NORTH);
+        errorWrapper.add(this.errorPanel, BorderLayout.NORTH);
 
-        errorPanel.setContent("Bank Searcher", "Here you can search for an item in your bank by its name.");
+        this.errorPanel.setContent("Bank Searcher", "Here you can search for an item in your bank by its name.");
 
-        centerPanel.add(resultsWrapper, RESULTS_PANEL);
-        centerPanel.add(errorWrapper, ERROR_PANEL);
+        this.centerPanel.add(resultsWrapper, RESULTS_PANEL);
+        this.centerPanel.add(errorWrapper, ERROR_PANEL);
 
-        cardLayout.show(centerPanel, ERROR_PANEL);
+        this.cardLayout.show(centerPanel, ERROR_PANEL);
     }
 
     public void updateItems(Item[] bankItems) {
-        this.allBankItems = bankItems;
-        searchItemsPanel.removeAll();
-        constraints.gridy = 0;
-        searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        searchBar.setEditable(false);
-        searchBar.setIcon(IconTextField.Icon.LOADING);
+        this.searchItemsPanel.removeAll();
+        this.constraints.gridy = 0;
+        this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        this.searchBar.setEditable(false);
+        this.searchBar.setIcon(IconTextField.Icon.LOADING);
 
-        this.createCompactItemLayout();
+        this.createCompactItemLayout(bankItems);
 
-        searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        searchBar.setEditable(true);
-        searchBar.setIcon(IconTextField.Icon.SEARCH);
-        cardLayout.show(centerPanel, RESULTS_PANEL);
+        this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        this.searchBar.setEditable(true);
+        this.searchBar.setIcon(IconTextField.Icon.SEARCH);
+        this.cardLayout.show(centerPanel, RESULTS_PANEL);
     }
 
     private boolean updateSearch() {
         return true;
     }
 
-    private void createDetailItemLayout() {
-        searchItemsPanel.setLayout(new GridBagLayout());
+    private void createDetailItemLayout(Item[] bankItems) {
+        this.searchItemsPanel.setLayout(new GridBagLayout());
 
         int index = 0;
-        for(Item bankItem : this.allBankItems) {
+        for(Item bankItem : bankItems) {
             int itemId = bankItem.getId();
             int quantity = bankItem.getQuantity();
-            ItemComposition itemComp = itemManager.getItemComposition(itemId);
+            ItemComposition itemComp = this.itemManager.getItemComposition(itemId);
             AsyncBufferedImage itemImage;
             if(quantity > 1 || itemComp.isStackable()) {
-                itemImage = itemManager.getImage(itemId, quantity, true);
+                itemImage = this.itemManager.getImage(itemId, quantity, true);
             }
             else {
-                itemImage = itemManager.getImage(itemId);
+                itemImage = this.itemManager.getImage(itemId);
             }
 
             BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), itemId, quantity);
@@ -162,35 +160,35 @@ public class BankSearcherPanel extends PluginPanel {
             Add the first item directly, wrap the rest with margin. This margin hack is because
             gridbaglayout does not support inter-element margins.
              */
-            if (index++ > 0) {
+            if(index++ > 0) {
                 JPanel marginWrapper = new JPanel(new BorderLayout());
                 marginWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
                 marginWrapper.setBorder(new EmptyBorder(5, 0, 0, 0));
                 marginWrapper.add(bankItemPanel, BorderLayout.NORTH);
-                searchItemsPanel.add(marginWrapper, constraints);
+                this.searchItemsPanel.add(marginWrapper, this.constraints);
             }
             else {
-                searchItemsPanel.add(bankItemPanel, constraints);
+                this.searchItemsPanel.add(bankItemPanel, this.constraints);
             }
 
-            constraints.gridy++;
+            this.constraints.gridy++;
         }
     }
 
-    private void createCompactItemLayout() {
-        searchItemsPanel.setLayout(new GridLayout(0, 5, 1, 1));
+    private void createCompactItemLayout(Item[] bankItems) {
+        this.searchItemsPanel.setLayout(new GridLayout(0, 5, 1, 1));
 
         int index = 0;
-        for(Item bankItem : this.allBankItems) {
+        for(Item bankItem : bankItems) {
             int itemId = bankItem.getId();
             int quantity = bankItem.getQuantity();
-            ItemComposition itemComp = itemManager.getItemComposition(itemId);
+            ItemComposition itemComp = this.itemManager.getItemComposition(itemId);
             AsyncBufferedImage itemImage;
             if(quantity > 1 || itemComp.isStackable()) {
-                itemImage = itemManager.getImage(itemId, quantity, true);
+                itemImage = this.itemManager.getImage(itemId, quantity, true);
             }
             else {
-                itemImage = itemManager.getImage(itemId);
+                itemImage = this.itemManager.getImage(itemId);
             }
 
             BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(itemImage, itemComp.getName(), itemId, quantity);
@@ -199,18 +197,18 @@ public class BankSearcherPanel extends PluginPanel {
             Add the first item directly, wrap the rest with margin. This margin hack is because
             gridbaglayout does not support inter-element margins.
              */
-            if (index++ > 4) {
+            if(index++ > 4) {
                 JPanel marginWrapper = new JPanel(new BorderLayout());
                 marginWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
                 marginWrapper.setBorder(new EmptyBorder(0, 0, 0, 0));
                 marginWrapper.add(bankItemPanel, BorderLayout.NORTH);
-                searchItemsPanel.add(marginWrapper, constraints);
+                this.searchItemsPanel.add(marginWrapper, this.constraints);
             }
             else {
-                searchItemsPanel.add(bankItemPanel, constraints);
+                this.searchItemsPanel.add(bankItemPanel, this.constraints);
             }
 
-            constraints.gridy++;
+            this.constraints.gridy++;
         }
     }
 }

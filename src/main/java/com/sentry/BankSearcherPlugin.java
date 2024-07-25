@@ -13,6 +13,7 @@ import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
@@ -29,19 +30,24 @@ import net.runelite.client.util.ImageUtil;
 @Slf4j
 @PluginDescriptor(name = "Bank Searcher")
 public class BankSearcherPlugin extends Plugin {
+	//Injections
 	@Inject
 	private Client client;
 
 	@Inject
 	private ClientToolbar clientToolbar;
 
-	private BankSearcherPanel bankSearcherPanel;
-	private NavigationButton navButton;
-
 	@Inject
 	private BankSearcherConfig config;
 
-	private Item[] bankItems;
+	@Inject
+	private BankSearcherService bankSearcherService;
+
+	private BankSearcherPanel bankSearcherPanel;
+	private NavigationButton navButton;
+
+	private Item[] allBankItems = {};
+	private Item[] filteredBankItems = {};
 
 	@Override
 	protected void startUp() throws Exception {
@@ -76,17 +82,28 @@ public class BankSearcherPlugin extends Plugin {
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded widgetLoaded) {
-		if (widgetLoaded.getGroupId() == InterfaceID.BANK) {
-			Widget bankContainer = client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+		if(widgetLoaded.getGroupId() == InterfaceID.BANK) {
+			Widget bankContainer = this.client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
 			boolean bankIsOpen = bankContainer != null && !bankContainer.isHidden();
 
 			if (bankIsOpen) {
 				log.info("BANK IS OPEN");
-				this.bankItems = BankSearcher.getBankItems(client);
-				for (Item bankItem : this.bankItems) {
-					log.info(bankItem.toString());
-				}
-				bankSearcherPanel.updateItems(this.bankItems);
+				this.allBankItems = this.bankSearcherService.getBankItems();
+				this.bankSearcherPanel.updateItems(this.allBankItems);
+			}
+		}
+	}
+
+	@Subscribe
+	public void onWidgetClosed(WidgetClosed widgetClosed) {
+		if(widgetClosed.getGroupId() == InterfaceID.BANK) {
+			Widget bankContainer = this.client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
+			boolean bankIsOpen = bankContainer != null && !bankContainer.isHidden();
+
+			if(bankIsOpen) {
+				log.info("BANK IS CLOSING");
+				this.allBankItems = this.bankSearcherService.getBankItems();
+				this.bankSearcherPanel.updateItems(this.allBankItems);
 			}
 		}
 	}
@@ -94,5 +111,20 @@ public class BankSearcherPlugin extends Plugin {
 	@Provides
 	BankSearcherConfig provideConfig(ConfigManager configManager) {
 		return configManager.getConfig(BankSearcherConfig.class);
+	}
+
+	public Item[] searchBankItems(String searchText) {
+		this.filteredBankItems = this.bankSearcherService.searchBankItems(searchText);
+		return this.filteredBankItems;
+	}
+
+	private void loadBankItemsLocally() {
+		// TO DO: Implement method to load all bank items to a local file
+		// based on logged in character which will be saved on shut down.
+	}
+
+	private void storeBankItemsLocally() {
+		// TO DO: Implement method to save all bank items to a local file
+		// based on logged in character which will be loaded on start up.
 	}
 }

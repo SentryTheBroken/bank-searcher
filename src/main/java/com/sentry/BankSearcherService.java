@@ -7,13 +7,19 @@ import net.runelite.api.ItemContainer;
 
 import javax.inject.Inject;
 
-public class BankSearcher {
+public class BankSearcherService {
+    @Inject
+    private Client client;
 
-    public static Item[] getBankItems(Client client) {
+    public Item[] getBankItems() {
         final ItemContainer itemContainer = client.getItemContainer(InventoryID.BANK);
         if (itemContainer == null) return null;
 
         return itemContainer.getItems();
     }
 
+    public Item[] searchBankItems(String searchText) {
+        // TO DO: Implement method to search items in bank based on searchText
+        return new Item[]{};
+    }
 }
