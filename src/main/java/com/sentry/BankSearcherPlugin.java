@@ -92,7 +92,8 @@ public class BankSearcherPlugin extends Plugin {
 			if (bankIsOpen) {
 				log.info("BANK IS OPEN");
 				this.allBankItems = this.bankSearcherService.getBankItems();
-				this.bankSearcherPanel.showItems(this.allBankItems);
+				this.searchBankItems(this.bankSearcherPanel.getSearchText());
+				this.bankSearcherPanel.showItems(this.filteredBankItems);
 			}
 		}
 	}
@@ -106,7 +107,8 @@ public class BankSearcherPlugin extends Plugin {
 			if(bankIsOpen) {
 				log.info("BANK IS CLOSING");
 				this.allBankItems = this.bankSearcherService.getBankItems();
-				this.bankSearcherPanel.showItems(this.allBankItems);
+				this.searchBankItems(this.bankSearcherPanel.getSearchText());
+				this.bankSearcherPanel.showItems(this.filteredBankItems);
 			}
 		}
 	}
@@ -117,6 +119,9 @@ public class BankSearcherPlugin extends Plugin {
 	}
 
 	public List<BankSearcherItem> searchBankItems(String searchText) {
+		if(searchText == null || searchText.isBlank() || searchText.isEmpty()) {
+			return this.filteredBankItems = this.allBankItems;
+		}
 		log.info("Search Bank Items for Keyword: {}", searchText);
 		this.filteredBankItems = this.bankSearcherService.searchBankItems(searchText, this.allBankItems);
 		return this.filteredBankItems;

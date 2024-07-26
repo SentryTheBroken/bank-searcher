@@ -1,6 +1,7 @@
 package com.sentry;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;
@@ -51,6 +53,9 @@ public class BankSearcherPanel extends PluginPanel {
 
     @Setter
     private BankSearcherLayoutType layoutType = BankSearcherLayoutType.COMPACT;
+
+    @Getter
+    private String searchText = "";
 
     @Inject
     private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager, ClientThread clientThread) {
@@ -102,7 +107,7 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.setPreferredSize(new Dimension(100, 30));
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.searchBar.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
-        this.searchBar.addActionListener(e -> this.showItems(this.bankSearcherPlugin.searchBankItems(e.getActionCommand())));
+        this.searchBar.addActionListener(this::handleSearchBarAction);
         this.searchBar.addClearListener(this::handleSearchBarClear);
 
         this.actionsAndSearchPanel.add(this.actions, BorderLayout.NORTH);
@@ -146,6 +151,21 @@ public class BankSearcherPanel extends PluginPanel {
         }
     }
 
+    private void handleSearchBarAction(ActionEvent e) {
+        this.searchText = e.getActionCommand();
+        List<BankSearcherItem> searchedBankItems = this.bankSearcherPlugin.searchBankItems(this.searchText);
+
+        if(searchedBankItems != null && !searchedBankItems.isEmpty()) {
+            this.showItems(searchedBankItems);
+        }
+        else {
+            searchBar.setIcon(IconTextField.Icon.ERROR);
+            errorPanel.setContent("No results found.", "No items were found with that name, please try again.");
+            cardLayout.show(centerPanel, ERROR_PANEL);
+            searchBar.setEditable(true);
+        }
+    }
+
     private void handleSearchBarClear() {
         this.bankSearcherPlugin.resetFilteredBankItems();
         this.showAllItems();
@@ -184,7 +204,7 @@ public class BankSearcherPanel extends PluginPanel {
 
         int index = 0;
         for(BankSearcherItem bankItem : bankItems) {
-            BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(bankItem.getIcon(), bankItem.getName(), bankItem.getItemId(), bankItem.getQuantity());
+            BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(bankItem);
 
             /*
             Add the first item directly, wrap the rest with margin. This margin hack is because
@@ -210,7 +230,7 @@ public class BankSearcherPanel extends PluginPanel {
 
         int index = 0;
         for(BankSearcherItem bankItem : bankItems) {
-            BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(bankItem.getIcon(), bankItem.getName(), bankItem.getItemId(), bankItem.getQuantity());
+            BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(bankItem);
 
             /*
             Add the first item directly, wrap the rest with margin. This margin hack is because

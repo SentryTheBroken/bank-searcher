@@ -25,17 +25,17 @@ import net.runelite.client.util.QuantityFormatter;
 class BankSearcherItemBoxPanel extends JPanel {
     private static final Dimension ICON_SIZE = new Dimension(32, 32);
 
-    BankSearcherItemBoxPanel(AsyncBufferedImage icon, String name, int itemID, int quantity) {
+    BankSearcherItemBoxPanel(BankSearcherItem bankItem) {
         this.setLayout(new BorderLayout(5, 0));
-        this.setToolTipText(name);
+        this.setToolTipText(bankItem.getName());
         this.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.setBorder(new EmptyBorder(5, 5, 5, 0));
 
         // Icon
         JLabel itemIcon = new JLabel();
         itemIcon.setPreferredSize(ICON_SIZE);
-        if (icon != null) {
-            icon.addTo(itemIcon);
+        if (bankItem.getIcon() != null) {
+            bankItem.getIcon().addTo(itemIcon);
         }
 
         this.add(itemIcon, BorderLayout.CENTER);

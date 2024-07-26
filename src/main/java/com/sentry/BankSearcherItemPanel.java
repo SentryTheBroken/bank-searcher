@@ -25,17 +25,17 @@ import net.runelite.client.util.QuantityFormatter;
 class BankSearcherItemPanel extends JPanel {
     private static final Dimension ICON_SIZE = new Dimension(32, 32);
 
-    BankSearcherItemPanel(AsyncBufferedImage icon, String name, int itemID, int quantity) {
+    BankSearcherItemPanel(BankSearcherItem bankItem) {
         this.setLayout(new BorderLayout(5, 0));
-        this.setToolTipText(name);
+        this.setToolTipText(bankItem.getName());
         this.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.setBorder(new EmptyBorder(5, 5, 5, 0));
 
         // Icon
         JLabel itemIcon = new JLabel();
         itemIcon.setPreferredSize(ICON_SIZE);
-        if (icon != null) {
-            icon.addTo(itemIcon);
+        if (bankItem.getIcon() != null) {
+            bankItem.getIcon().addTo(itemIcon);
         }
 
         this.add(itemIcon, BorderLayout.LINE_START);
@@ -49,14 +49,20 @@ class BankSearcherItemPanel extends JPanel {
         itemName.setForeground(Color.WHITE);
         itemName.setMaximumSize(new Dimension(0, 0));        // to limit the label's size for
         itemName.setPreferredSize(new Dimension(0, 0));    // items with longer names
-        itemName.setText(name);
+        itemName.setText(bankItem.getName());
         rightPanel.add(itemName);
 
-        // Quantity
-        JLabel quantityLabel = new JLabel();
-        quantityLabel.setText("Qty: " + String.valueOf(quantity));
-        quantityLabel.setForeground(ColorScheme.GRAND_EXCHANGE_PRICE);
-        rightPanel.add(quantityLabel);
+        // GE Price
+        JLabel gePrice = new JLabel();
+        gePrice.setText(String.valueOf(bankItem.getGePrice()) + " gp");
+        gePrice.setForeground(ColorScheme.GRAND_EXCHANGE_PRICE);
+        rightPanel.add(gePrice);
+
+        // HA Price
+        JLabel haPrice = new JLabel();
+        haPrice.setText(String.valueOf(bankItem.getHaPrice()) + " alch");
+        haPrice.setForeground(ColorScheme.GRAND_EXCHANGE_ALCH);
+        rightPanel.add(haPrice);
 
         this.add(rightPanel, BorderLayout.CENTER);
     }
