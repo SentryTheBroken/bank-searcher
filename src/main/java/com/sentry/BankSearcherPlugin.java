@@ -3,15 +3,16 @@ package com.sentry;
 import com.google.inject.Provides;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
+
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
-import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
@@ -22,7 +23,6 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.info.InfoPanel;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
@@ -46,8 +46,11 @@ public class BankSearcherPlugin extends Plugin {
 	private BankSearcherPanel bankSearcherPanel;
 	private NavigationButton navButton;
 
-	private Item[] allBankItems = {};
-	private Item[] filteredBankItems = {};
+	@Getter
+	private List<BankSearcherItem> allBankItems = new ArrayList<>();
+
+	@Getter
+	private List<BankSearcherItem> filteredBankItems = new ArrayList<>();
 
 	@Override
 	protected void startUp() throws Exception {
@@ -89,7 +92,7 @@ public class BankSearcherPlugin extends Plugin {
 			if (bankIsOpen) {
 				log.info("BANK IS OPEN");
 				this.allBankItems = this.bankSearcherService.getBankItems();
-				this.bankSearcherPanel.updateItems(this.allBankItems);
+				this.bankSearcherPanel.showItems(this.allBankItems);
 			}
 		}
 	}
@@ -103,7 +106,7 @@ public class BankSearcherPlugin extends Plugin {
 			if(bankIsOpen) {
 				log.info("BANK IS CLOSING");
 				this.allBankItems = this.bankSearcherService.getBankItems();
-				this.bankSearcherPanel.updateItems(this.allBankItems);
+				this.bankSearcherPanel.showItems(this.allBankItems);
 			}
 		}
 	}
@@ -113,8 +116,9 @@ public class BankSearcherPlugin extends Plugin {
 		return configManager.getConfig(BankSearcherConfig.class);
 	}
 
-	public Item[] searchBankItems(String searchText) {
-		this.filteredBankItems = this.bankSearcherService.searchBankItems(searchText);
+	public List<BankSearcherItem> searchBankItems(String searchText) {
+		log.info("Search Bank Items for Keyword: {}", searchText);
+		this.filteredBankItems = this.bankSearcherService.searchBankItems(searchText, this.allBankItems);
 		return this.filteredBankItems;
 	}
 

@@ -1,7 +1,7 @@
 package com.sentry;
 
 import java.awt.*;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -11,11 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.config.RuneLiteConfig;
-import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.ui.components.PluginErrorPanel;
@@ -26,6 +23,7 @@ public class BankSearcherPanel extends PluginPanel {
     // Injections
     private BankSearcherPlugin bankSearcherPlugin;
     private ItemManager itemManager;
+    private ClientThread clientThread;
 
     // Constants
     private static final String ERROR_PANEL = "ERROR_PANEL";
@@ -48,9 +46,10 @@ public class BankSearcherPanel extends PluginPanel {
     private final PluginErrorPanel errorPanel = new PluginErrorPanel();
 
     @Inject
-    private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager) {
+    private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager, ClientThread clientThread) {
         this.bankSearcherPlugin = bankSearcherPlugin;
         this.itemManager = itemManager;
+        this.clientThread = clientThread;
 
         this.setLayout(new BorderLayout());
         this.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -84,8 +83,8 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.setPreferredSize(new Dimension(100, 30));
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.searchBar.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
-        //this.searchBar.addActionListener(e -> executor.execute(() -> priceLookup(false)));
-        this.searchBar.addClearListener(this::updateSearch);
+        this.searchBar.addActionListener(e -> this.bankSearcherPlugin.searchBankItems(e.getActionCommand()));
+        this.searchBar.addClearListener(this::showAllItems);
 
         this.actionsAndSearchPanel.add(searchBar);
     }
@@ -119,7 +118,13 @@ public class BankSearcherPanel extends PluginPanel {
         this.cardLayout.show(centerPanel, ERROR_PANEL);
     }
 
-    public void updateItems(Item[] bankItems) {
+    public void showAllItems() {
+        clientThread.invoke(() -> {
+            this.showItems(this.bankSearcherPlugin.getAllBankItems());
+        });
+    }
+
+    public void showItems(List<BankSearcherItem> bankItems) {
         this.searchItemsPanel.removeAll();
         this.constraints.gridy = 0;
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -132,29 +137,20 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.setEditable(true);
         this.searchBar.setIcon(IconTextField.Icon.SEARCH);
         this.cardLayout.show(centerPanel, RESULTS_PANEL);
+        this.searchItemsPanel.revalidate();
+        this.searchItemsPanel.repaint();
     }
 
     private boolean updateSearch() {
         return true;
     }
 
-    private void createDetailItemLayout(Item[] bankItems) {
+    private void createDetailItemLayout(List<BankSearcherItem> bankItems) {
         this.searchItemsPanel.setLayout(new GridBagLayout());
 
         int index = 0;
-        for(Item bankItem : bankItems) {
-            int itemId = bankItem.getId();
-            int quantity = bankItem.getQuantity();
-            ItemComposition itemComp = this.itemManager.getItemComposition(itemId);
-            AsyncBufferedImage itemImage;
-            if(quantity > 1 || itemComp.isStackable()) {
-                itemImage = this.itemManager.getImage(itemId, quantity, true);
-            }
-            else {
-                itemImage = this.itemManager.getImage(itemId);
-            }
-
-            BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(itemImage, itemComp.getName(), itemId, quantity);
+        for(BankSearcherItem bankItem : bankItems) {
+            BankSearcherItemPanel bankItemPanel = new BankSearcherItemPanel(bankItem.getIcon(), bankItem.getName(), bankItem.getItemId(), bankItem.getQuantity());
 
             /*
             Add the first item directly, wrap the rest with margin. This margin hack is because
@@ -175,23 +171,12 @@ public class BankSearcherPanel extends PluginPanel {
         }
     }
 
-    private void createCompactItemLayout(Item[] bankItems) {
+    private void createCompactItemLayout(List<BankSearcherItem> bankItems) {
         this.searchItemsPanel.setLayout(new GridLayout(0, 5, 1, 1));
 
         int index = 0;
-        for(Item bankItem : bankItems) {
-            int itemId = bankItem.getId();
-            int quantity = bankItem.getQuantity();
-            ItemComposition itemComp = this.itemManager.getItemComposition(itemId);
-            AsyncBufferedImage itemImage;
-            if(quantity > 1 || itemComp.isStackable()) {
-                itemImage = this.itemManager.getImage(itemId, quantity, true);
-            }
-            else {
-                itemImage = this.itemManager.getImage(itemId);
-            }
-
-            BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(itemImage, itemComp.getName(), itemId, quantity);
+        for(BankSearcherItem bankItem : bankItems) {
+            BankSearcherItemBoxPanel bankItemPanel = new BankSearcherItemBoxPanel(bankItem.getIcon(), bankItem.getName(), bankItem.getItemId(), bankItem.getQuantity());
 
             /*
             Add the first item directly, wrap the rest with margin. This margin hack is because
