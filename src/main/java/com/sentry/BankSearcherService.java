@@ -44,11 +44,17 @@ public class BankSearcherService {
     }
 
     public List<BankSearcherItem> searchBankItems(String searchText, List<BankSearcherItem> allBankItems) {
-        // TO DO: Implement method to search items in bank based on searchText
         List<BankSearcherItem> filteredBankItems = new ArrayList<>();
         for(BankSearcherItem bankItem : allBankItems) {
-
+            if(bankItem.getName().toLowerCase().contains(searchText)) {
+                filteredBankItems.add(bankItem);
+            }
         }
+
+        for(BankSearcherItem bankItem : filteredBankItems) {
+            log.info(bankItem.toString());
+        }
+
         return filteredBankItems;
     }
 }

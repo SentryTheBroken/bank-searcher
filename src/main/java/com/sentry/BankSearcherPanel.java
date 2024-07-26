@@ -83,7 +83,7 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.setPreferredSize(new Dimension(100, 30));
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.searchBar.setHoverBackgroundColor(ColorScheme.DARK_GRAY_HOVER_COLOR);
-        this.searchBar.addActionListener(e -> this.bankSearcherPlugin.searchBankItems(e.getActionCommand()));
+        this.searchBar.addActionListener(e -> this.showItems(this.bankSearcherPlugin.searchBankItems(e.getActionCommand())));
         this.searchBar.addClearListener(this::showAllItems);
 
         this.actionsAndSearchPanel.add(searchBar);
