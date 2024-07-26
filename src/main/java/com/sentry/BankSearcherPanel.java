@@ -141,7 +141,7 @@ public class BankSearcherPanel extends PluginPanel
 		errorWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		errorWrapper.add(this.errorPanel, BorderLayout.NORTH);
 
-		this.errorPanel.setContent("Bank Searcher", "Here you can search for an item in your bank by its name.");
+		this.errorPanel.setContent("Bank Searcher", "Here you can search for an item in your bank by it's name. Please visit a bank to see your items.");
 
 		this.centerPanel.add(resultsWrapper, RESULTS_PANEL);
 		this.centerPanel.add(errorWrapper, ERROR_PANEL);
