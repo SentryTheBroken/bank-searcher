@@ -29,7 +29,8 @@ import net.runelite.client.util.ImageUtil;
 
 @Slf4j
 @PluginDescriptor(name = "Bank Searcher")
-public class BankSearcherPlugin extends Plugin {
+public class BankSearcherPlugin extends Plugin
+{
 	//Injections
 	@Inject
 	private Client client;
@@ -53,9 +54,10 @@ public class BankSearcherPlugin extends Plugin {
 	private List<BankSearcherItem> filteredBankItems = new ArrayList<>();
 
 	@Override
-	protected void startUp() throws Exception {
+	protected void startUp() throws Exception
+	{
 		bankSearcherPanel = injector.getInstance(BankSearcherPanel.class);
-		
+
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "BankSearcher.png");
 
 		navButton = NavigationButton.builder()
@@ -70,26 +72,32 @@ public class BankSearcherPlugin extends Plugin {
 	}
 
 	@Override
-	protected void shutDown() throws Exception {
+	protected void shutDown() throws Exception
+	{
 		clientToolbar.removeNavigation(navButton);
 		bankSearcherPanel = null;
 		log.info("BankSearcher stopped!");
 	}
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged) {
-		if(gameStateChanged.getGameState() == GameState.LOGGED_IN) {
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	{
+		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
+		{
 			// TO DO: Get List of items cached for currently logged in character
 		}
 	}
 
 	@Subscribe
-	public void onWidgetLoaded(WidgetLoaded widgetLoaded) {
-		if(widgetLoaded.getGroupId() == InterfaceID.BANK) {
+	public void onWidgetLoaded(WidgetLoaded widgetLoaded)
+	{
+		if (widgetLoaded.getGroupId() == InterfaceID.BANK)
+		{
 			Widget bankContainer = this.client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
 			boolean bankIsOpen = bankContainer != null && !bankContainer.isHidden();
 
-			if (bankIsOpen) {
+			if (bankIsOpen)
+			{
 				log.info("BANK IS OPEN");
 				this.allBankItems = this.bankSearcherService.getBankItems();
 				this.searchBankItems(this.bankSearcherPanel.getSearchText());
@@ -99,12 +107,15 @@ public class BankSearcherPlugin extends Plugin {
 	}
 
 	@Subscribe
-	public void onWidgetClosed(WidgetClosed widgetClosed) {
-		if(widgetClosed.getGroupId() == InterfaceID.BANK) {
+	public void onWidgetClosed(WidgetClosed widgetClosed)
+	{
+		if (widgetClosed.getGroupId() == InterfaceID.BANK)
+		{
 			Widget bankContainer = this.client.getWidget(ComponentID.BANK_ITEM_CONTAINER);
 			boolean bankIsOpen = bankContainer != null && !bankContainer.isHidden();
 
-			if(bankIsOpen) {
+			if (bankIsOpen)
+			{
 				log.info("BANK IS CLOSING");
 				this.allBankItems = this.bankSearcherService.getBankItems();
 				this.searchBankItems(this.bankSearcherPanel.getSearchText());
@@ -114,12 +125,15 @@ public class BankSearcherPlugin extends Plugin {
 	}
 
 	@Provides
-	BankSearcherConfig provideConfig(ConfigManager configManager) {
+	BankSearcherConfig provideConfig(ConfigManager configManager)
+	{
 		return configManager.getConfig(BankSearcherConfig.class);
 	}
 
-	public List<BankSearcherItem> searchBankItems(String searchText) {
-		if(searchText == null || searchText.isBlank() || searchText.isEmpty()) {
+	public List<BankSearcherItem> searchBankItems(String searchText)
+	{
+		if (searchText == null || searchText.isBlank() || searchText.isEmpty())
+		{
 			return this.filteredBankItems = this.allBankItems;
 		}
 		log.info("Search Bank Items for Keyword: {}", searchText);
@@ -127,16 +141,19 @@ public class BankSearcherPlugin extends Plugin {
 		return this.filteredBankItems;
 	}
 
-	public void resetFilteredBankItems() {
+	public void resetFilteredBankItems()
+	{
 		this.filteredBankItems = this.allBankItems;
 	}
 
-	private void loadBankItemsLocally() {
+	private void loadBankItemsLocally()
+	{
 		// TO DO: Implement method to load all bank items to a local file
 		// based on logged in character which will be saved on shut down.
 	}
 
-	private void storeBankItemsLocally() {
+	private void storeBankItemsLocally()
+	{
 		// TO DO: Implement method to save all bank items to a local file
 		// based on logged in character which will be loaded on start up.
 	}

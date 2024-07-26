@@ -22,22 +22,25 @@ import net.runelite.client.util.QuantityFormatter;
  * This panel displays an individual item result in the
  * Grand Exchange search plugin.
  */
-class BankSearcherItemBoxPanel extends JPanel {
-    private static final Dimension ICON_SIZE = new Dimension(32, 32);
+class BankSearcherItemBoxPanel extends JPanel
+{
+	private static final Dimension ICON_SIZE = new Dimension(32, 32);
 
-    BankSearcherItemBoxPanel(BankSearcherItem bankItem) {
-        this.setLayout(new BorderLayout(5, 0));
-        this.setToolTipText(bankItem.getName());
-        this.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        this.setBorder(new EmptyBorder(5, 5, 5, 0));
+	BankSearcherItemBoxPanel(BankSearcherItem bankItem)
+	{
+		this.setLayout(new BorderLayout(5, 0));
+		this.setToolTipText(bankItem.getName());
+		this.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		this.setBorder(new EmptyBorder(5, 5, 5, 0));
 
-        // Icon
-        JLabel itemIcon = new JLabel();
-        itemIcon.setPreferredSize(ICON_SIZE);
-        if (bankItem.getIcon() != null) {
-            bankItem.getIcon().addTo(itemIcon);
-        }
+		// Icon
+		JLabel itemIcon = new JLabel();
+		itemIcon.setPreferredSize(ICON_SIZE);
+		if (bankItem.getIcon() != null)
+		{
+			bankItem.getIcon().addTo(itemIcon);
+		}
 
-        this.add(itemIcon, BorderLayout.CENTER);
-    }
+		this.add(itemIcon, BorderLayout.CENTER);
+	}
 }
