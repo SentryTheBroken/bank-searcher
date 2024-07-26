@@ -39,9 +39,6 @@ public class BankSearcherPlugin extends Plugin
 	private ClientToolbar clientToolbar;
 
 	@Inject
-	private BankSearcherConfig config;
-
-	@Inject
 	private BankSearcherService bankSearcherService;
 
 	private BankSearcherPanel bankSearcherPanel;
@@ -122,12 +119,6 @@ public class BankSearcherPlugin extends Plugin
 				this.bankSearcherPanel.showItems(this.filteredBankItems);
 			}
 		}
-	}
-
-	@Provides
-	BankSearcherConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(BankSearcherConfig.class);
 	}
 
 	public List<BankSearcherItem> searchBankItems(String searchText)
