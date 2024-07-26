@@ -151,11 +151,12 @@ public class BankSearcherPanel extends PluginPanel
 
 	private void handleLayoutButtonClicked(BankSearcherLayoutType layoutType)
 	{
-		if (this.layoutType != layoutType)
+		List<BankSearcherItem> filteredBankItems = this.bankSearcherPlugin.getFilteredBankItems();
+		if (this.layoutType != layoutType && filteredBankItems != null && !filteredBankItems.isEmpty())
 		{
 			log.info("Switching layout type to {}", layoutType);
 			this.setLayoutType(layoutType);
-			this.showItems(this.bankSearcherPlugin.getFilteredBankItems());
+			this.showItems(filteredBankItems);
 		}
 	}
 
