@@ -122,6 +122,10 @@ public class BankSearcherPlugin extends Plugin {
 		return this.filteredBankItems;
 	}
 
+	public void resetFilteredBankItems() {
+		this.filteredBankItems = this.allBankItems;
+	}
+
 	private void loadBankItemsLocally() {
 		// TO DO: Implement method to load all bank items to a local file
 		// based on logged in character which will be saved on shut down.

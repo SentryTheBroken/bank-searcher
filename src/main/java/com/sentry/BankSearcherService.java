@@ -45,8 +45,10 @@ public class BankSearcherService {
 
     public List<BankSearcherItem> searchBankItems(String searchText, List<BankSearcherItem> allBankItems) {
         List<BankSearcherItem> filteredBankItems = new ArrayList<>();
+        String lowerSearchText = searchText.toLowerCase();
+
         for(BankSearcherItem bankItem : allBankItems) {
-            if(bankItem.getName().toLowerCase().contains(searchText)) {
+            if(bankItem.getName().toLowerCase().contains(lowerSearchText)) {
                 filteredBankItems.add(bankItem);
             }
         }
