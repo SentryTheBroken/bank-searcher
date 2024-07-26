@@ -97,14 +97,18 @@ public class BankSearcherPanel extends PluginPanel
 		this.actions.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		JButton detailButton = new JButton();
 		detailButton.setFocusable(false);
+		detailButton.setToolTipText("Detail View");
 		detailButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.DETAIL));
 		final BufferedImage detailIcon = ImageUtil.loadImageResource(getClass(), "DetailIcon.png");
 		detailButton.setIcon(new ImageIcon(detailIcon.getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+
 		JButton compactButton = new JButton();
 		compactButton.setFocusable(false);
+		compactButton.setToolTipText("Compact View");
 		compactButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.COMPACT));
 		final BufferedImage compactIcon = ImageUtil.loadImageResource(getClass(), "CompactIcon.png");
 		compactButton.setIcon(new ImageIcon(compactIcon.getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+
 		this.actions.add(detailButton);
 		this.actions.add(compactButton);
 
