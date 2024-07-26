@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JLabel;

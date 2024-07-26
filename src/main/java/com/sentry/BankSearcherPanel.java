@@ -166,6 +166,9 @@ public class BankSearcherPanel extends PluginPanel
 
 	private void handleSearchBarAction(ActionEvent e)
 	{
+		List<BankSearcherItem> filteredBankItems = this.bankSearcherPlugin.getFilteredBankItems();
+		if (filteredBankItems == null || filteredBankItems.isEmpty()) return;
+
 		this.searchText = e.getActionCommand();
 		List<BankSearcherItem> searchedBankItems = this.bankSearcherPlugin.searchBankItems(this.searchText);
 
@@ -184,6 +187,7 @@ public class BankSearcherPanel extends PluginPanel
 
 	private void handleSearchBarClear()
 	{
+		this.searchText = "";
 		this.bankSearcherPlugin.resetFilteredBankItems();
 		this.showAllItems();
 	}

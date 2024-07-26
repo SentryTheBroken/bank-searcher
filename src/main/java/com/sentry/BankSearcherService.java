@@ -1,8 +1,15 @@
 package com.sentry;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.CompositeContext;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.ColorModel;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.util.AsyncBufferedImage;
 
 import javax.inject.Inject;
@@ -17,6 +24,11 @@ public class BankSearcherService
 	@Inject
 	private ItemManager itemManager;
 
+	//Constants
+	int ITEM_PLACEHOLDER_ID = 14401;
+
+	private Set<Integer> placeholderIconsUpdated = new HashSet<>();
+
 	public List<BankSearcherItem> getBankItems()
 	{
 		final ItemContainer itemContainer = client.getItemContainer(InventoryID.BANK);
@@ -30,9 +42,28 @@ public class BankSearcherService
 		{
 			int itemId = item.getId();
 			int quantity = item.getQuantity();
+
 			ItemComposition itemComp = this.itemManager.getItemComposition(itemId);
+			int placeholderId = itemComp.getPlaceholderId();
+			Boolean isPlaceholder = itemComp.getPlaceholderTemplateId() == ITEM_PLACEHOLDER_ID;
+
 			AsyncBufferedImage itemImage;
-			if (quantity > 1 || itemComp.isStackable())
+			if (isPlaceholder)
+			{
+				quantity = 0;
+				itemImage = this.itemManager.getImage(placeholderId, quantity, true);
+
+				if(!placeholderIconsUpdated.contains(placeholderId))
+				{
+					Graphics2D placeholderIconGraphics = itemImage.createGraphics();
+					placeholderIconGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 0.5f));
+					placeholderIconGraphics.drawImage(itemImage, 0, 0, Constants.ITEM_SPRITE_WIDTH, Constants.ITEM_SPRITE_HEIGHT, null);
+					placeholderIconGraphics.dispose();
+
+					placeholderIconsUpdated.add(placeholderId);
+				}
+			}
+			else if (quantity > 1 || itemComp.isStackable())
 			{
 				itemImage = this.itemManager.getImage(itemId, quantity, true);
 			}
@@ -41,13 +72,11 @@ public class BankSearcherService
 				itemImage = this.itemManager.getImage(itemId);
 			}
 
-			bankItems.add(new BankSearcherItem(itemImage, itemComp.getName(), itemId, quantity, itemManager.getItemPrice(itemId), itemComp.getHaPrice()));
+			bankItems.add(new BankSearcherItem(itemImage, itemComp.getName(), itemId, quantity, itemManager.getItemPrice(itemId), itemComp.getHaPrice(), isPlaceholder, placeholderId));
+
+			log.info("Name: {}, ItemId: {}, PlaceholderId: {}, PlaceholderTemplateId: {}", itemComp.getName(), itemId, itemComp.getPlaceholderId(), itemComp.getPlaceholderTemplateId());
 		}
 
-		for (BankSearcherItem bankItem : bankItems)
-		{
-			log.info(bankItem.toString());
-		}
 
 		return bankItems;
 	}
