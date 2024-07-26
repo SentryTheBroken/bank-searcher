@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
@@ -34,6 +35,7 @@ public class BankSearcherPanel extends PluginPanel {
     private final CardLayout cardLayout = new CardLayout();
 
     private final JPanel actionsAndSearchPanel = new JPanel();
+    private final JPanel actions = new JPanel();
     private final IconTextField searchBar = new IconTextField();
 
     // The results container, this will hold all the individual ge item panels
@@ -44,6 +46,9 @@ public class BankSearcherPanel extends PluginPanel {
 
     // The error panel, this displays an error message
     private final PluginErrorPanel errorPanel = new PluginErrorPanel();
+
+    @Setter
+    private BankSearcherLayoutType layoutType = BankSearcherLayoutType.COMPACT;
 
     @Inject
     private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager, ClientThread clientThread) {
@@ -79,6 +84,14 @@ public class BankSearcherPanel extends PluginPanel {
         this.actionsAndSearchPanel.setLayout(new BorderLayout());
         this.actionsAndSearchPanel.setBackground(ColorScheme.PROGRESS_ERROR_COLOR);
 
+        this.actions.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JButton detailButton = new JButton("Detail");
+        detailButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.DETAIL));
+        JButton compactButton = new JButton("Compact");
+        compactButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.COMPACT));
+        this.actions.add(detailButton);
+        this.actions.add(compactButton);
+
         this.searchBar.setIcon(IconTextField.Icon.SEARCH);
         this.searchBar.setPreferredSize(new Dimension(100, 30));
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -86,7 +99,8 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.addActionListener(e -> this.showItems(this.bankSearcherPlugin.searchBankItems(e.getActionCommand())));
         this.searchBar.addClearListener(this::showAllItems);
 
-        this.actionsAndSearchPanel.add(searchBar);
+        this.actionsAndSearchPanel.add(this.actions, BorderLayout.NORTH);
+        this.actionsAndSearchPanel.add(this.searchBar, BorderLayout.CENTER);
     }
 
     private void buildCenterPanel() {
@@ -118,6 +132,14 @@ public class BankSearcherPanel extends PluginPanel {
         this.cardLayout.show(centerPanel, ERROR_PANEL);
     }
 
+    public void handleLayoutButtonClicked(BankSearcherLayoutType layoutType) {
+        if(this.layoutType != layoutType) {
+            log.info("Switching layout type to {}", layoutType);
+            this.setLayoutType(layoutType);
+            this.showAllItems();
+        }
+    }
+
     public void showAllItems() {
         clientThread.invoke(() -> {
             this.showItems(this.bankSearcherPlugin.getAllBankItems());
@@ -131,7 +153,12 @@ public class BankSearcherPanel extends PluginPanel {
         this.searchBar.setEditable(false);
         this.searchBar.setIcon(IconTextField.Icon.LOADING);
 
-        this.createCompactItemLayout(bankItems);
+        if(this.layoutType == BankSearcherLayoutType.COMPACT) {
+            this.createCompactItemLayout(bankItems);
+        }
+        else if(this.layoutType == BankSearcherLayoutType.DETAIL) {
+            this.createDetailItemLayout(bankItems);
+        }
 
         this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         this.searchBar.setEditable(true);
