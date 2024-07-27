@@ -73,14 +73,14 @@ public class BankSearcherPlugin extends Plugin
 		log.info("BankSearcher stopped!");
 	}
 
-	@Subscribe
+	/*@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
 		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
 			// TO DO: Get List of items cached for currently logged in character
 		}
-	}
+	}*/
 
 	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded widgetLoaded)
@@ -92,7 +92,6 @@ public class BankSearcherPlugin extends Plugin
 
 			if (bankIsOpen)
 			{
-				log.info("BANK IS OPEN");
 				this.allBankItems = this.bankSearcherService.getBankItems();
 				this.searchBankItems(this.bankSearcherPanel.getSearchText());
 				this.bankSearcherPanel.showItems(this.filteredBankItems);
@@ -110,7 +109,6 @@ public class BankSearcherPlugin extends Plugin
 
 			if (bankIsOpen)
 			{
-				log.info("BANK IS CLOSING");
 				this.allBankItems = this.bankSearcherService.getBankItems();
 				this.searchBankItems(this.bankSearcherPanel.getSearchText());
 				this.bankSearcherPanel.showItems(this.filteredBankItems);

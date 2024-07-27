@@ -11,8 +11,7 @@ import javax.swing.border.EmptyBorder;
 import net.runelite.client.ui.ColorScheme;
 
 /**
- * This panel displays an individual item result in the
- * Grand Exchange search plugin.
+ * This panel displays an individual item result in the detail layout
  */
 class BankSearcherItemPanel extends JPanel
 {

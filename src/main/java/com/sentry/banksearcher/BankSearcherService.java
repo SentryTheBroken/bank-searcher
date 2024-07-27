@@ -2,7 +2,6 @@ package com.sentry.banksearcher;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
-import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.AsyncBufferedImage;
@@ -10,7 +9,6 @@ import net.runelite.client.util.AsyncBufferedImage;
 import javax.inject.Inject;
 import java.util.*;
 
-@Slf4j
 public class BankSearcherService
 {
 	@Inject
@@ -61,10 +59,7 @@ public class BankSearcherService
 			}
 
 			bankItems.add(new BankSearcherItem(itemImage, itemComp.getName(), itemId, quantity, itemManager.getItemPrice(itemId), itemComp.getHaPrice(), isPlaceholder, placeholderId));
-
-			log.info("Name: {}, ItemId: {}, PlaceholderId: {}, PlaceholderTemplateId: {}", itemComp.getName(), itemId, itemComp.getPlaceholderId(), itemComp.getPlaceholderTemplateId());
 		}
-
 
 		return bankItems;
 	}
@@ -80,11 +75,6 @@ public class BankSearcherService
 			{
 				filteredBankItems.add(bankItem);
 			}
-		}
-
-		for (BankSearcherItem bankItem : filteredBankItems)
-		{
-			log.info(bankItem.toString());
 		}
 
 		return filteredBankItems;

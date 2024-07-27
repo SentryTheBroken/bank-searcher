@@ -16,20 +16,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.ui.components.PluginErrorPanel;
 import net.runelite.client.util.ImageUtil;
 
+/**
+ * Main panel for searching for and displaying bank items
+ */
 @Slf4j
 public class BankSearcherPanel extends PluginPanel
 {
 	// Injections
-	private BankSearcherPlugin bankSearcherPlugin;
-	private ItemManager itemManager;
-	private ClientThread clientThread;
+	private final BankSearcherPlugin bankSearcherPlugin;
+	private final ClientThread clientThread;
 
 	// Constants
 	private static final String ERROR_PANEL = "ERROR_PANEL";
@@ -49,7 +50,7 @@ public class BankSearcherPanel extends PluginPanel
 	// The center panel, this holds either the error panel or the results container
 	private final JPanel centerPanel = new JPanel(cardLayout);
 
-	// The error panel, this displays an error message
+	// The error panel, this displays a welcome or error message
 	private final PluginErrorPanel errorPanel = new PluginErrorPanel();
 
 	@Setter
@@ -59,11 +60,10 @@ public class BankSearcherPanel extends PluginPanel
 	private String searchText = "";
 
 	@Inject
-	private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager, ClientThread clientThread)
+	private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ClientThread clientThread)
 	{
 		super(false);
 		this.bankSearcherPlugin = bankSearcherPlugin;
-		this.itemManager = itemManager;
 		this.clientThread = clientThread;
 
 		this.setLayout(new BorderLayout());
@@ -74,7 +74,7 @@ public class BankSearcherPanel extends PluginPanel
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 
-		/*  The main container, this holds the search bar and the center panel */
+		// The main container, this holds the search bar and the center panel
 		JPanel container = new JPanel();
 		container.setLayout(new BorderLayout(5, 5));
 		container.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -83,7 +83,6 @@ public class BankSearcherPanel extends PluginPanel
 		this.buildActionsAndSearchPanel();
 		this.buildCenterPanel();
 
-		//container.add(searchBar, BorderLayout.NORTH);
 		container.add(this.actionsAndSearchPanel, BorderLayout.NORTH);
 		container.add(this.centerPanel, BorderLayout.CENTER);
 
@@ -129,19 +128,19 @@ public class BankSearcherPanel extends PluginPanel
 		this.searchItemsPanel.setLayout(new GridBagLayout());
 		this.searchItemsPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
-		/* This panel wraps the results panel and guarantees the scrolling behaviour */
+		// This panel wraps the results panel and guarantees the scrolling behaviour
 		JPanel wrapper = new JPanel(new BorderLayout());
 		wrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		wrapper.add(this.searchItemsPanel, BorderLayout.NORTH);
 
-		/*  The results wrapper, this scrolling panel wraps the results container */
+		// The results wrapper, this scrolling panel wraps the results container
 		JScrollPane resultsWrapper = new JScrollPane(wrapper);
 		resultsWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		resultsWrapper.getVerticalScrollBar().setPreferredSize(new Dimension(12, 0));
 		resultsWrapper.getVerticalScrollBar().setBorder(new EmptyBorder(0, 5, 0, 0));
 		resultsWrapper.setVisible(false);
 
-		/* This panel wraps the error panel and limits its height */
+		// This panel wraps the error panel and limits its height
 		JPanel errorWrapper = new JPanel(new BorderLayout());
 		errorWrapper.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		errorWrapper.add(this.errorPanel, BorderLayout.NORTH);
@@ -168,7 +167,10 @@ public class BankSearcherPanel extends PluginPanel
 	private void handleSearchBarAction(ActionEvent e)
 	{
 		List<BankSearcherItem> allBankItems = this.bankSearcherPlugin.getAllBankItems();
-		if (allBankItems == null || allBankItems.isEmpty()) return;
+		if (allBankItems == null || allBankItems.isEmpty())
+		{
+			return;
+		}
 
 		this.searchText = e.getActionCommand();
 		List<BankSearcherItem> searchedBankItems = this.bankSearcherPlugin.searchBankItems(this.searchText);
@@ -202,8 +204,11 @@ public class BankSearcherPanel extends PluginPanel
 
 	public void showItems(List<BankSearcherItem> bankItems)
 	{
-		if(bankItems == null || bankItems.isEmpty()) return;
-		
+		if (bankItems == null || bankItems.isEmpty())
+		{
+			return;
+		}
+
 		this.searchItemsPanel.removeAll();
 		this.constraints.gridy = 0;
 		this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);

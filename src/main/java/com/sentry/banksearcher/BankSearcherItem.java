@@ -6,12 +6,12 @@ import net.runelite.client.util.AsyncBufferedImage;
 @Value
 public class BankSearcherItem
 {
-	private final AsyncBufferedImage icon;
-	private final String name;
-	private final Integer itemId;
-	private final Integer quantity;
-	private final Integer gePrice;
-	private final Integer haPrice;
-	private final Boolean isPlaceholder;
-	private final Integer placeholderId;
+	AsyncBufferedImage icon;
+	String name;
+	Integer itemId;
+	Integer quantity;
+	Integer gePrice;
+	Integer haPrice;
+	Boolean isPlaceholder;
+	Integer placeholderId;
 }
