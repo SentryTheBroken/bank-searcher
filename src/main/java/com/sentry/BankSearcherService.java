@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemVariationMapping;
+import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.util.AsyncBufferedImage;
 
 import javax.inject.Inject;
@@ -26,8 +27,6 @@ public class BankSearcherService
 
 	//Constants
 	int ITEM_PLACEHOLDER_ID = 14401;
-
-	private Set<Integer> placeholderIconsUpdated = new HashSet<>();
 
 	public List<BankSearcherItem> getBankItems()
 	{
@@ -53,15 +52,10 @@ public class BankSearcherService
 				quantity = 0;
 				itemImage = this.itemManager.getImage(placeholderId, quantity, true);
 
-				if(!placeholderIconsUpdated.contains(placeholderId))
-				{
-					Graphics2D placeholderIconGraphics = itemImage.createGraphics();
-					placeholderIconGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 0.5f));
-					placeholderIconGraphics.drawImage(itemImage, 0, 0, Constants.ITEM_SPRITE_WIDTH, Constants.ITEM_SPRITE_HEIGHT, null);
-					placeholderIconGraphics.dispose();
-
-					placeholderIconsUpdated.add(placeholderId);
-				}
+				Graphics2D placeholderIconGraphics = itemImage.createGraphics();
+				placeholderIconGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.XOR, 0.5f));
+				placeholderIconGraphics.drawImage(itemImage, 0, 0, Constants.ITEM_SPRITE_WIDTH, Constants.ITEM_SPRITE_HEIGHT, null);
+				placeholderIconGraphics.dispose();
 			}
 			else if (quantity > 1 || itemComp.isStackable())
 			{
