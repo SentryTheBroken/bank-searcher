@@ -29,7 +29,6 @@ class BankSearcherItemPanel extends JPanel
 	BankSearcherItemPanel(BankSearcherItem bankItem)
 	{
 		this.setLayout(new BorderLayout(5, 0));
-		this.setToolTipText(bankItem.getName());
 		this.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		this.setBorder(new EmptyBorder(5, 5, 5, 0));
 
