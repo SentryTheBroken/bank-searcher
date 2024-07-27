@@ -61,6 +61,7 @@ public class BankSearcherPanel extends PluginPanel
 	@Inject
 	private BankSearcherPanel(BankSearcherPlugin bankSearcherPlugin, ItemManager itemManager, ClientThread clientThread)
 	{
+		super(false);
 		this.bankSearcherPlugin = bankSearcherPlugin;
 		this.itemManager = itemManager;
 		this.clientThread = clientThread;
@@ -178,10 +179,10 @@ public class BankSearcherPanel extends PluginPanel
 		}
 		else
 		{
-			searchBar.setIcon(IconTextField.Icon.ERROR);
-			errorPanel.setContent("No results found.", "No items were found with that name, please try again.");
-			cardLayout.show(centerPanel, ERROR_PANEL);
-			searchBar.setEditable(true);
+			this.searchBar.setIcon(IconTextField.Icon.ERROR);
+			this.errorPanel.setContent("No results found.", "No items were found with that name, please try again.");
+			this.cardLayout.show(this.centerPanel, ERROR_PANEL);
+			this.searchBar.setEditable(true);
 		}
 	}
 
