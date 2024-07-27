@@ -1,16 +1,10 @@
-package com.sentry;
+package com.sentry.banksearcher;
 
 import java.awt.AlphaComposite;
-import java.awt.Composite;
-import java.awt.CompositeContext;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.ColorModel;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.game.ItemVariationMapping;
-import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.util.AsyncBufferedImage;
 
 import javax.inject.Inject;

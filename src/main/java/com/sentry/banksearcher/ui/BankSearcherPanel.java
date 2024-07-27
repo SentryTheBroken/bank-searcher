@@ -1,5 +1,8 @@
-package com.sentry;
+package com.sentry.banksearcher.ui;
 
+import com.sentry.banksearcher.BankSearcherItem;
+import com.sentry.banksearcher.BankSearcherLayoutType;
+import com.sentry.banksearcher.BankSearcherPlugin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -12,15 +15,12 @@ import javax.swing.border.EmptyBorder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.ui.components.PluginErrorPanel;
-import net.runelite.client.util.AsyncBufferedImage;
 import net.runelite.client.util.ImageUtil;
 
 @Slf4j
@@ -100,14 +100,14 @@ public class BankSearcherPanel extends PluginPanel
 		detailButton.setFocusable(false);
 		detailButton.setToolTipText("Detail View");
 		detailButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.DETAIL));
-		final BufferedImage detailIcon = ImageUtil.loadImageResource(getClass(), "DetailIcon.png");
+		final BufferedImage detailIcon = ImageUtil.loadImageResource(BankSearcherPlugin.class, "DetailIcon.png");
 		detailButton.setIcon(new ImageIcon(detailIcon.getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
 
 		JButton compactButton = new JButton();
 		compactButton.setFocusable(false);
 		compactButton.setToolTipText("Compact View");
 		compactButton.addActionListener(e -> this.handleLayoutButtonClicked(BankSearcherLayoutType.COMPACT));
-		final BufferedImage compactIcon = ImageUtil.loadImageResource(getClass(), "CompactIcon.png");
+		final BufferedImage compactIcon = ImageUtil.loadImageResource(BankSearcherPlugin.class, "CompactIcon.png");
 		compactButton.setIcon(new ImageIcon(compactIcon.getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
 
 		this.actions.add(detailButton);
@@ -167,8 +167,8 @@ public class BankSearcherPanel extends PluginPanel
 
 	private void handleSearchBarAction(ActionEvent e)
 	{
-		List<BankSearcherItem> filteredBankItems = this.bankSearcherPlugin.getFilteredBankItems();
-		if (filteredBankItems == null || filteredBankItems.isEmpty()) return;
+		List<BankSearcherItem> allBankItems = this.bankSearcherPlugin.getAllBankItems();
+		if (allBankItems == null || allBankItems.isEmpty()) return;
 
 		this.searchText = e.getActionCommand();
 		List<BankSearcherItem> searchedBankItems = this.bankSearcherPlugin.searchBankItems(this.searchText);
@@ -202,6 +202,8 @@ public class BankSearcherPanel extends PluginPanel
 
 	public void showItems(List<BankSearcherItem> bankItems)
 	{
+		if(bankItems == null || bankItems.isEmpty()) return;
+		
 		this.searchItemsPanel.removeAll();
 		this.constraints.gridy = 0;
 		this.searchBar.setBackground(ColorScheme.DARKER_GRAY_COLOR);

@@ -1,4 +1,4 @@
-package com.sentry;
+package com.sentry.banksearcher;
 
 public enum BankSearcherLayoutType
 {

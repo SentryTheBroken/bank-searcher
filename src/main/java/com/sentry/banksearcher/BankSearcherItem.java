@@ -1,4 +1,4 @@
-package com.sentry;
+package com.sentry.banksearcher;
 
 import lombok.Value;
 import net.runelite.client.util.AsyncBufferedImage;

@@ -1,4 +1,4 @@
-package com.sentry;
+package com.sentry.banksearcher;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
